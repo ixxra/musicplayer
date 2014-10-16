@@ -4,10 +4,12 @@ import os.path
 
 
 PLAYLIST = {
-    'TITLE'   : 0,
-    'ARTIST'  : 1,
-    'ALBUM'   : 2,
-    'LOCATION': 3
+    'TITLE'         : 0,
+    'ARTIST'        : 1,
+    'ALBUM'         : 2,
+    'LOCATION'      : 3,
+    'ID'            : 4,
+    'PLAYING_STATE' : 5
 }
 
 
@@ -62,7 +64,6 @@ class Handler:
             iter = model.get_iter(r.get_path())
             model.remove(iter)
 
-
     def on_playlist_row_activated(self, treeview, path, column):
         print(treeview, path, column)
 
@@ -72,12 +73,20 @@ class Handler:
     def toggle_play(self, action):
         print ('toggle')
 
+    def play(self, action):
+        print('play')
 
     def next(self, action):
         print('next')
 
     def prev(self, action):
         print ('prev')
+
+    def stop(self, action):
+        print ('stop')
+    
+    def pause(self, action):
+        print ('pause')
 
         
 if __name__ == '__main__':

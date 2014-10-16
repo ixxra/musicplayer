@@ -12,20 +12,17 @@ class Extractor(GObject.Object):
         self.files = []
         self.metadata = []
         self.queue = []
-    
-    
+
     @GObject.Signal
     def finished(self):
         return
 
-    
     def add_to_queue(self, fname):
         '''
         Adds fname to queue for metadata extraction.
         This is a FIFO queue
         '''
         self.queue.append(os.path.abspath(fname))
-
 
     def start(self):
         assert len(self.queue) > 0
@@ -38,18 +35,15 @@ class Extractor(GObject.Object):
         self.pipe.get_by_name('decoder').set_property('uri', uri)
         self.pipe.set_state(Gst.State.PLAYING)
 
-
     @staticmethod
     def link_pads_and_go(decoder, src_pad, pipe):
         sink = pipe.get_by_name('sink')
         sink_pad = sink.pads[0]
 
-        print ('Linking pads: {p} -> {s}'.format(
-                p=src_pad.name, s=sink_pad.name
-            )
+        print('Linking pads: {p} -> {s}'.format(
+            p=src_pad.name, s=sink_pad.name)
         )
         src_pad.link(sink_pad)
-
 
     def add_tag(self, bus, message):
         def get_value(taglist, key):
@@ -66,19 +60,17 @@ class Extractor(GObject.Object):
 
         message.parse_tag().foreach(get_value)
 
-
     def raise_error(self, bus, message):
-        print ('ERROR!:')
-        print (message.parse_error())
+        print('ERROR!:')
+        print(message.parse_error())
         self.process_next()
-
 
     def on_eos(self, bus, message):
         self.process_next()
 
     #def process_next(self, bus, message, pipe):
     def process_next(self):
-        print ('got EOS')
+        print('got EOS')
 
         try:
             fname = self.queue.pop(0)
@@ -86,19 +78,18 @@ class Extractor(GObject.Object):
             self.metadata.append({'fname': fname})
         except IndexError:
             self.pipe.set_state(Gst.State.NULL)
-            print ('No more files on queue')
-            print (self.files)
-            print (self.metadata)
+            print('No more files on queue')
+            print(self.files)
+            print(self.metadata)
             self.finished.emit()
             return
 
-        print ('fname:', fname)
+        print('fname:', fname)
         uri = Gst.filename_to_uri(fname)
 
         self.pipe.set_state(Gst.State.NULL)
         self.pipe.get_by_name('decoder').set_property('uri', uri)
         self.pipe.set_state(Gst.State.PLAYING)
-
 
     def make_pipe(self):
         decoder = Gst.ElementFactory.make('uridecodebin', 'decoder')
@@ -107,12 +98,11 @@ class Extractor(GObject.Object):
         pipe.add(decoder)
         pipe.add(sink)
         pipe.get_bus().add_signal_watch()
-        
+
         decoder.connect('pad-added', self.link_pads_and_go, pipe)
         decoder.connect('pad-removed', lambda d, p: print('pad removed!'))
 
         self.pipe = pipe
-
 
     def connect_bus(self):
         bus = self.pipe.get_bus()
@@ -124,11 +114,9 @@ class Extractor(GObject.Object):
 if __name__ == '__main__':
     from sys import argv
 
-
     def print_and_bye(extractor):
         print(extractor.metadata)
         loop.quit()
-
 
     Gst.init()
 
@@ -141,4 +129,3 @@ if __name__ == '__main__':
     ex.finished.connect(print_and_bye)
     ex.start()
     loop.run()
-
