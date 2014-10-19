@@ -46,7 +46,7 @@ class GMusic(iface.Handler):
         self.player.play_next()
         self.mainWindow.set_title(title)
 
-        if self.playingRef is not None:
+        if self.playingRef is not None and self.playingRef.valid():
             old_path = self.playingRef.get_path()
             old_iter = model.get_iter(old_path)
             model.set(old_iter, iface.PLAYLIST['PLAYING_STATE'], None)

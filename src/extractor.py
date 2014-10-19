@@ -24,11 +24,23 @@ class Extractor(GObject.Object):
         '''
         self.queue.append(os.path.abspath(fname))
 
+    def clear_all(self):
+        '''
+        Clears queue, filenames list and metadata cache.
+        Raises an exception if the inner pipe is in the PLAYING state.
+        '''
+        assert self.pipe.get_state(Gst.CLOCK_TIME_NONE) \
+                != Gst.State.PLAYING, 'Extractor is working!'
+        self.pipe.set_state(Gst.State.NULL)
+        self.files.clear()
+        self.metadata.clear()
+        self.queue.clear()
+
     def start(self):
         assert len(self.queue) > 0
         fname = self.queue.pop(0)
         self.files.append(fname)
-        self.metadata.append({'fname': fname})
+        self.metadata.append({'fname': {fname}})
         uri = Gst.filename_to_uri(fname)
 
         self.pipe.set_state(Gst.State.NULL)
