@@ -67,6 +67,9 @@ class Handler:
     def on_playlist_row_activated(self, treeview, path, column):
         print(treeview, path, column)
 
+    def on_clearAction_activate(self, playlistModel):
+        playlistModel.clear()
+
     def show_playlist_menu(self, action):
         print ('menu')
        

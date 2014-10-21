@@ -1,5 +1,6 @@
 from gi.repository import Gtk
 from gi.repository import Gst
+from gi.repository import GLib
 from sys import argv
 import player as pl
 import ui.interface as iface
@@ -20,6 +21,9 @@ class GMusic(iface.Handler):
         mainWindow.show_all()
 
         self.mainWindow = mainWindow
+        self.posAdj = builder.get_object('positionAdjustment')
+        
+        self.update_interface_ID = GLib.timeout_add(500, self.update_interface)
 
     def on_playlist_row_activated(self, treeview, path, column):
         model = treeview.get_model()
@@ -67,6 +71,33 @@ class GMusic(iface.Handler):
     def pause(self, action):
         self.player.pause()
 
+    def on_positionBar_button_press_event(self, posBar, ev):
+        GLib.source_remove(self.update_interface_ID)
+
+    def on_positionBar_button_release_event(self, posBar, ev):
+        if not hasattr(self.player, 'pipe'):
+            return True
+        
+        pipe = self.player.pipe
+        dur_ok, dur = pipe.query_duration(Gst.Format.TIME)
+
+        if dur_ok:
+            new_pos = posBar.get_value() * dur
+            pipe.seek_simple(Gst.Format.TIME, Gst.SeekFlags.FLUSH, new_pos)
+
+        self.update_interface_ID = GLib.timeout_add(500, self.update_interface)
+
+
+    def update_interface(self):
+        if not hasattr(self.player, 'pipe'):
+            return True
+        pipe = self.player.pipe
+        pos_ok, pos = pipe.query_position(Gst.Format.TIME)
+        dur_ok, dur = pipe.query_duration(Gst.Format.TIME)
+        if pos_ok and dur_ok:
+            self.posAdj.set_value(pos/dur)
+        #GLib.print("Time: %" + Gst.TIME_FORMAT + "/ %" + Gst.TIME_FORMAT + "\r", Gst.Time.Args(pos), Gst.Time.Args(dur))
+        return True
 
 
 Gst.init(argv)

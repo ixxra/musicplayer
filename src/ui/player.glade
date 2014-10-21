@@ -58,6 +58,7 @@
     <property name="icon_name">applications-system</property>
     <property name="always_show_image">True</property>
   </object>
+  <object class="GtkAction" id="action2"/>
   <object class="GtkActionGroup" id="playlistActionGroup">
     <child>
       <object class="GtkAction" id="addAction">
@@ -77,6 +78,15 @@
         <signal name="activate" handler="remove_selection_from_playlist" object="treeview-selection" swapped="no"/>
       </object>
       <accelerator key="Delete"/>
+    </child>
+    <child>
+      <object class="GtkAction" id="clearAction">
+        <property name="label" translatable="yes">Clear</property>
+        <property name="stock_id">gtk-delete</property>
+        <property name="icon_name">edit-delete</property>
+        <property name="always_show_image">True</property>
+        <signal name="activate" handler="on_clearAction_activate" object="playlistModel" swapped="no"/>
+      </object>
     </child>
   </object>
   <object class="GtkMenu" id="playlistMenu">
@@ -120,9 +130,8 @@
       <column type="gchararray"/>
     </columns>
   </object>
-  <object class="GtkAdjustment" id="positionAdjustmen">
-    <property name="upper">100</property>
-    <property name="value">0.089999999999999997</property>
+  <object class="GtkAdjustment" id="positionAdjustment">
+    <property name="upper">1</property>
     <property name="step_increment">1</property>
     <property name="page_increment">10</property>
   </object>
@@ -134,7 +143,89 @@
         <property name="can_focus">False</property>
         <property name="orientation">vertical</property>
         <child>
-          <placeholder/>
+          <object class="GtkMenuBar" id="menubar1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkMenuItem" id="menuitem3">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">_Playlist</property>
+                <property name="use_underline">True</property>
+                <child type="submenu">
+                  <object class="GtkMenu" id="menu1">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <child>
+                      <object class="GtkImageMenuItem" id="imagemenuitem5">
+                        <property name="label">gtk-quit</property>
+                        <property name="use_action_appearance">True</property>
+                        <property name="related_action">addAction</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImageMenuItem" id="imagemenuitem1">
+                        <property name="use_action_appearance">True</property>
+                        <property name="related_action">removeAction</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkSeparatorMenuItem" id="menuitem4">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkImageMenuItem" id="imagemenuitem2">
+                        <property name="use_action_appearance">True</property>
+                        <property name="related_action">clearAction</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkMenuItem" id="menuitem6">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Ay_uda</property>
+                <property name="use_underline">True</property>
+                <child type="submenu">
+                  <object class="GtkMenu" id="menu3">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <child>
+                      <object class="GtkImageMenuItem" id="imagemenuitem10">
+                        <property name="label">gtk-about</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_underline">True</property>
+                        <property name="use_stock">True</property>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
         </child>
         <child>
           <object class="GtkScrolledWindow" id="scrolledwindow1">
@@ -309,9 +400,11 @@
               <object class="GtkScale" id="positionBar">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="adjustment">positionAdjustmen</property>
+                <property name="adjustment">positionAdjustment</property>
                 <property name="round_digits">1</property>
                 <property name="draw_value">False</property>
+                <signal name="button-press-event" handler="on_positionBar_button_press_event" swapped="no"/>
+                <signal name="button-release-event" handler="on_positionBar_button_release_event" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">True</property>
