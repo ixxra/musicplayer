@@ -14,6 +14,18 @@ class Player(GObject.Object):
         self.stop()
         delattr(self, 'pipe')
 
+    @GObject.Signal
+    def stopped(self):
+        pass
+
+    @GObject.Signal
+    def paused(self):
+        pass
+
+    @GObject.Signal
+    def unpaused(self):
+        pass
+
     def play_next(self):
         try:
             fname = self.queue.pop(0)
@@ -59,6 +71,7 @@ class Player(GObject.Object):
         bus.connect('message::tag', self.on_tag)
         bus.connect('message::eos', self.on_eos)
         bus.connect('message::error', self.on_error)
+        bus.connect('message::state_changed', self.on_state_changed)
 
     def on_tag(self, bus, message):
         def get_value(taglist, key):
@@ -80,6 +93,11 @@ class Player(GObject.Object):
     def on_eos(self, bus, message):
         self.metadata.clear()
         self.play_next()
+
+    def on_state_changed(self, bus, message):
+        old, new = message.parse_state_changed()
+        print('{el} changed state: {os} -> {nw}'.format(
+            el=message.src, os=old, nw=new))
 
     def on_error(self, message, bus):
         print('Error:')

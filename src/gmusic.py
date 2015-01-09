@@ -22,7 +22,7 @@ class GMusic(iface.Handler):
 
         self.mainWindow = mainWindow
         self.posAdj = builder.get_object('positionAdjustment')
-        
+
         self.update_interface_ID = GLib.timeout_add(500, self.update_interface)
 
     def on_playlist_row_activated(self, treeview, path, column):
@@ -41,8 +41,8 @@ class GMusic(iface.Handler):
     def play_selected(self, model, path):
         iter = model.get_iter(path)
         fname, title, = model.get(
-            iter, 
-            iface.PLAYLIST['LOCATION'], 
+            iter,
+            iface.PLAYLIST['LOCATION'],
             iface.PLAYLIST['TITLE']
         )
         self.player.queue.clear()
@@ -57,7 +57,6 @@ class GMusic(iface.Handler):
 
         model.set(iter, iface.PLAYLIST['PLAYING_STATE'], Gtk.STOCK_MEDIA_PLAY)
         self.playingRef = Gtk.TreeRowReference.new(model, path)
-        
 
     def toggle_play(self, action):
         self.player.toggle_state()
@@ -77,7 +76,7 @@ class GMusic(iface.Handler):
     def on_positionBar_button_release_event(self, posBar, ev):
         if not hasattr(self.player, 'pipe'):
             return True
-        
+
         pipe = self.player.pipe
         dur_ok, dur = pipe.query_duration(Gst.Format.TIME)
 
@@ -86,7 +85,6 @@ class GMusic(iface.Handler):
             pipe.seek_simple(Gst.Format.TIME, Gst.SeekFlags.FLUSH, new_pos)
 
         self.update_interface_ID = GLib.timeout_add(500, self.update_interface)
-
 
     def update_interface(self):
         if not hasattr(self.player, 'pipe'):

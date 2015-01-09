@@ -12,7 +12,7 @@ class Track:
     def __init__(self, uri:str, metadata:dict):
         assert isinstance(uri, str)
         assert isinstance(metadata, dict)
-        
+
         self.uri = uri
         self.metadata = metadata
         self.id = None
@@ -132,9 +132,15 @@ class Track:
             tracks.append(Track(uri, meta))
         return tracks
 
-    
 
     @staticmethod
     def get_connection():
         return db.connect(DATABASE)
 
+    @staticmethod
+    def exists(uri):
+        conn = Track.get_connection()
+        cur = conn.execute(
+            'select uri from files where uri=? limit 1;',
+            (uri,))
+        return cur.fetchone() is not None

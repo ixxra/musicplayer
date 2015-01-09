@@ -1,6 +1,7 @@
 from gi.repository import Gst
 from gi.repository import GLib
 from gi.repository import GObject
+import json
 import os
 
 
@@ -15,6 +16,13 @@ class Extractor(GObject.Object):
 
     @GObject.Signal
     def finished(self):
+        return
+
+    @GObject.Signal
+    def eos(self, metadataId:int):
+        '''
+        metadataId is the metadata position in the metadata list
+        '''
         return
 
     def add_to_queue(self, fname):
@@ -78,12 +86,11 @@ class Extractor(GObject.Object):
         self.process_next()
 
     def on_eos(self, bus, message):
+        self.eos.emit(len(self.metadata) - 1)
         self.process_next()
 
     #def process_next(self, bus, message, pipe):
     def process_next(self):
-        print('got EOS')
-
         try:
             fname = self.queue.pop(0)
             self.files.append(fname)
@@ -91,8 +98,6 @@ class Extractor(GObject.Object):
         except IndexError:
             self.pipe.set_state(Gst.State.NULL)
             print('No more files on queue')
-            print(self.files)
-            print(self.metadata)
             self.finished.emit()
             return
 
